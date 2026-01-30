@@ -45,7 +45,7 @@ def find_para_by_string(doc_obj: _Document, search: str) -> int:
     for i, p in enumerate(doc_obj.paragraphs):
         if re.match(search, p.text):
             return i
-        
+
 
 def get_para_by_string(doc_obj: _Document, search: str) -> Paragraph:
     """
@@ -212,7 +212,7 @@ def insert_paragraph_after(paragraph: Paragraph, text: str = None, style: str = 
 
     # Create a new empty <w:p> element
     new_p = OxmlElement("w:p")
-    
+
     # Insert the new <w:p> after the given paragraph’s <w:p>
     paragraph._p.addnext(new_p)
 
@@ -263,7 +263,9 @@ def insert_text_by_table_coords(table: dict, row: int, col: int, text: str) -> d
     return table
 
 
-def generate_table(num_rows: int, num_cols: int, header_row: list, style: str = None) -> dict:
+def generate_table(
+    num_rows: int, num_cols: int, header_row: list, style: str = None
+) -> dict:
     """
     Generate a basic table dictionary with specified number of rows and columns.
     Each cell contains empty text.
