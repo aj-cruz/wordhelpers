@@ -1,5 +1,5 @@
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xlextract.svg)](https://img.shields.io/pypi/pyversions/xlextract)
-[![PyPI](https://img.shields.io/pypi/v/xlextract.svg)](https://pypi.python.org/pypi/xlextract)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xlextract.svg)](https://img.shields.io/pypi/pyversions/wordhelpers)
+[![PyPI](https://img.shields.io/pypi/v/wordhelpers.svg)](https://pypi.python.org/pypi/wordhelpers)
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 # wordhelpers
