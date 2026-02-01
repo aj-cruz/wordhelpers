@@ -81,7 +81,7 @@ def replace_placeholder_with_table(
 
 def inject_table(
     doc_obj: _Document,
-    table: dict,
+    table: dict | WordTableModel,
     placeholder: str,
     remove_leading_para: bool = True,
     remove_placeholder: bool = True,
@@ -93,21 +93,29 @@ def inject_table(
     After moving the Word table after the placeholder paragraph, delete the
     placeholder paragraph.
     """
+
     # Locate the paragraph from the supplied placeholder text
     paragraph: Paragraph = get_para_by_string(doc_obj, placeholder)
+    if not paragraph:
+        raise ValueError(
+            f'WARNING: Could not locate placeholder "{placeholder}"'
+        )
 
     # Build the word table and add it to the end of the document
-    table: Table = build_table(doc_obj, table, remove_leading_para=remove_leading_para)
+    table = (
+        build_table(
+            doc_obj, table, remove_leading_para=remove_leading_para
+        )
+        if isinstance(table, dict)
+        else build_table(doc_obj, table.model_dump(), remove_leading_para=remove_leading_para)
+    )
 
-    if not paragraph:
-        print(f'WARNING: Could not locate placeholder "{placeholder}"')
-    else:
-        # Move the Word table to a new paragraph immediately after the placeholder paragraph
-        paragraph._p.addnext(table._tbl)
+    # Move the Word table to a new paragraph immediately after the placeholder paragraph
+    paragraph._p.addnext(table._tbl)
 
-        if remove_placeholder:
-            # Delete the placeholder paragraph
-            delete_paragraph(paragraph)
+    if remove_placeholder:
+        # Delete the placeholder paragraph
+        delete_paragraph(paragraph)
 
 
 def build_table(

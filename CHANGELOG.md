@@ -1,3 +1,6 @@
+# 0.1.4 (1 February, 2026)
+- ```inject_table()``` now accepts type ```WordTableModel``` in addition to ```dict``` so that we don't have to re-calculate the pydantic model if ```WordTableModel``` is supplied
+
 # 0.1.3 (31, January, 2026)
 - Added class methods to ```WordTableModel``` for building tables directly in the pydantic model
     - add_row(width: int, text: list[str] = [], merge_cols: list[int] = [], background_color: str | None = None, style: str | None = None, alignment: AlignmentEnum | None = None)
