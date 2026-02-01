@@ -3,8 +3,7 @@
 [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 # wordhelpers
-=============
-Helper functions for [python-docx](https://python-docx.readthedocs.io/en/latest/). I found myself re-learning docx every time I wanted to use it in a project, so this provides and abstraction. You represent Word tables as a properly-formatted Python dictionary and the helper function converts it to a docx table.
+Helper functions for [python-docx](https://python-docx.readthedocs.io/en/latest/). I found myself re-learning docx every time I wanted to use it in a project, so this provides and abstraction. You represent Word tables as a properly-formatted Python dictionary or with the provided WordTableModel class and the helper function converts it to a docx table.
 
 # Installation
 wordhelpers can be installed via poetry with: ```poetry add wordhelpers```
@@ -19,74 +18,87 @@ For detailed documentation of the python-docx library see [python-docx](https://
     ```
 1. Import the helpers from this project with:
     ```python
-    from wordhelpers import build_table, replace_placeholder_with_table
+    from wordhelpers import WordTableModel, inject_table
     ```
 1. Create the docx Word document object with something like:
     ```python
     doc_obj = Document("a_word_template.docx")
     ```
-1. Manipulate the document object as required (see the next section of this README for info on how to do that)
-1. When all changes to your document object are complete, write them with:
+1. Add tables to the document object as required (see the next section of this README for info on how to do that)
+1. When all changes to your document object are complete, write them with the docx `save()` method:
     ```python
     doc_obj.save("output_file.docx")
     ```
-# Manipulating the document object
-wordhelpers provides two main functions available to your scripts:
-1. build_table(<doc_obj>, <table_dict>, <remove_leading_para>)
-1. replace_placeholder_with_table(<doc_obj>, <search_string>, <table_obj>)
+# Adding tables to the document object
+There are two methods available for creating tables for addition to a word document:
+1. The provided `WordTablesModel` class
+1. A properly-formatted python dictionary
 
-### build_table(<doc_obj>, <table_dict>, <remove_leading_para>)
-The purpose of this function is to allow the script author to model Word tables using Python dictionaries. If formatted properly, the module will translate the Python dictionary to the appropriate python-docx syntax and create the Word table object.
+The WordTablesModel class has a number of methods available to help you build the table:
+- ```add_row(width: int, text: list[str] = [], merge_cols: list[int] = [], background_color: str | None = None, style: str | None = None, alignment: AlignmentEnum | None = None)```
+- ```add_text_to_row(row_index: int, text: list[str], style: str | None = None, alignment: AlignmentEnum | None = None)```
+- ```add_text_to_cell(row_index: int, col_index: int, text: str, style: str | None = None, alignment: AlignmentEnum | None = None)```
+- ```style_row(row_index: int, text_style: str)```
+- ```style_cell(row_index: int, col_index: int, text_style: str)```
+- ```color_row(row_index: int, background_color: str)```
+- ```color_cell(row_index: int, col_index: int, background_color: str)```
+- ```align_row(row_index: int, alignment: AlignmentEnum)```
+- ```align_cell(row_index: int, col_index: int, alignment: AlignmentEnum)```
+- ```add_table_to_cell(row_index: int, col_index: int, table: WordTableModel)```
+- ```delete_row(row_index: int)```
+- ```model_dump()```
+- ```pretty_print()```
+- ```write()```
 
-The build_table function has the following arguments:
-- **<doc_obj>** - The python-docx Word document object created in step 3 of the "Usage" section above.
-- **<table_dict>** - The Word table model (Python dictionary). The expected Python dictionary format to model a Word table is:
-    ```python
-    {
-        "style": None,
-        "rows": [
-            {
-                "cells": [
-                    {
-                        "width": None,
-                        "background": None,
-                        "paragraphs": [{"style":None,"alignment": "center", "text":"Some Text"}],
-                        "table": {optional child table}
-                    },
-                    {
-                        "merge": None
-                    },
-                ]
-            }
-        ]
-    }
-    ```
-    The cell **background** attribute is optional. If supplied with a hexidecimal color code, the cell will be shaded that color.
-    
-    The cell **width** attribute is optional. If supplied with a decimal number (inches), it will hard-code that column's width to the supplied value.
+If you prefer to create the tables manually via Python dictionary, the dictionary must follow a strict schema that looks something like this:
+```python
+{
+    "style": None,
+    "rows": [
+        {
+            "cells": [
+                {
+                    "width": None,
+                    "background": None,
+                    "paragraphs": [{"style":None,"alignment": "center", "text":"Some Text"}],
+                    "table": {optional child table}
+                },
+                {
+                    "merge": None
+                },
+            ]
+        }
+    ]
+}
+```
+The cell **background** attribute is optional. If supplied with a hexidecimal color code, the cell will be shaded that color.
 
-    The cell **table** attribute is optional. It can be used to nest tables within table cells. If "table" is provided, no other keys are required (background, paragraphs, etc).
+The cell **width** attribute is optional. If supplied with a decimal number (inches), it will hard-code that column's width to the supplied value.
 
-    The paragraph **style** attribute is optional. If set to anything besides None it will use the Word style referenced. The style must already exist in the source/template Word document.
+The cell **table** attribute is optional. It can be used to nest tables within table cells. If "table" is provided, no other keys are required (background, paragraphs, etc).
 
-    The paragraph **alignment** attribute is optional. If set to ```"center"``` it will center-align the text within a cell, if set to ```"right"``` it will right-align the text within a cell
+The paragraph **style** attribute is optional. If set to anything besides None it will use the Word style referenced. The style must already exist in the source/template Word document.
 
-    The **merge** key is optional. If used the cell will be merged with the cell above (from a dictionary view, to the left from a table view). Multiple merges can be used in a row to merge multiple cells.
+The paragraph **alignment** attribute is optional. If set to ```"center"``` it will center-align the text within a cell, if set to ```"right"``` it will right-align the text within a cell
 
-    By default a paragraph's **text** property will create a single-line (but wrapped) entry in the cell if the value is a string. If you would like to create a multi-line cell entry, supply the value as a list instead of a string. This will instruct the module to add a line break after each list item.
+The **merge** key is optional. If used the cell will be merged with the cell above (from a dictionary view, to the left from a table view). Multiple merges can be used in a row to merge multiple cells.
+
+By default a paragraph's **text** property will create a single-line (but wrapped) entry in the cell if the value is a string. If you would like to create a multi-line cell entry, supply the value as a list instead of a string. This will instruct the module to add a line break after each list item.
+
+Schema enforcement of the dictionary is done through Pydantic v2 validations.
+
+Injection of the table model (either via the class or a raw dictionary) is done via the provided ```inject_table()``` function.  
+The function has the following parameters:
+- doc_obj: _Document
+- table: dict
+- placeholder: str
+- remove_leading_para: bool = True
+- remove_placeholder: bool = True
+
+Notice the table parameter must be a python dictionary. So if you've created the table via the provided ```WordTableModel``` class you pass it to ```inject_table()``` with: ```my_table.model_dump()```
+
 - **<remove_leading_para>** - This is an optional argument. If not set it will default to True. MS Word tables when created automatically have an empty paragraph at the top/beginning of the table cell. This can create unwanted spacing at the top of the table. By default (value set to "True") the paragraph will be deleted. If you want to keep the paragraph (to add text to it), set this to "False".
-
-**IMPORTANT NOTE:** This adds the table object to very end of your Word file. If you want to relocate it, use the provided `replace_placeholder_with_table()` function (see below). 
-
-### replace_placeholder_with_table(<doc_obj>, <search_string>, <table_obj>)
-The purpose of this function is to search a Word file for a given string (the placeholder) and replace the string with a Word table object.
-
-The replace_placeholder_with_table function has the following arguments:
-- **<doc_obj>** - The python-docx Word document object created in step 2 of the "USING PYTHON-DOCX LIBRARY" section above.
-- **<search_string>** - The string to search for in the document object (doc_obj)
-- **<table_obj>** - The python-docx Word Table object that will replace the <search_string> in the document object (odc_obj)
-
-It will relocate the table to the placeholder and remove the placeholder.-
+- **<remove_placeholder>** - This is an optional argument. You can leave the placeholder (```remove_placeholder=False```) if you need to keep injecting tables below the placeholder before final deletion
 
 ### EXAMPLE
 We start with a Microsoft Word template named "source-template.docx" that looks like this:
@@ -96,93 +108,131 @@ We start with a Microsoft Word template named "source-template.docx" that looks 
 Our sample Python script looks like this:
 ```python
 from docx import Document
-from dcnet_msofficetools.docx_extensions import build_table, replace_placeholder_with_table
+from wordhelpers import inject_table
 
 doc_obj = Document("source-template.docx")
 
 my_dictionary = {
-    "style": None,
+    "style": "plain",
     "rows": [
         {
             "cells": [
                 {
-                    "paragraphs": [],
-                    "table": {
-                        "style": "plain",
-                        "rows": [
-                            {
-                                "cells": [
-                                    {
-                                        "background": "#506279",
-                                        "paragraphs":[{"style": "regularbold", "text": "Header 1:"}]
-                                    },
-                                    {
-                                        "background": "#506279",
-                                        "paragraphs":[{"style": "regularbold", "text": "Header 2:"}]
-                                    },
-                                    {
-                                        "background": "#506279",
-                                        "paragraphs":[{"style": "regularbold", "text": "Header 3:"}]
-                                    }
-                                ]
-                            },
-                            {
-                                "cells": [
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 1:"}]
-                                    },
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 2:"}]
-                                    },
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 3:"}]
-                                    }
-                                ]
-                            },
-                            {
-                                "cells": [
-                                    {
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 1:"}]
-                                    },
-                                    {
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 2:"}]
-                                    },
-                                    {
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 3:"}]
-                                    }
-                                ]
-                            },
-                            {
-                                "cells": [
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 1:"}]
-                                    },
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 2:"}]
-                                    },
-                                    {
-                                        "background": "#D5DCE4",
-                                        "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 3:"}]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                    "background": "#506279",
+                    "paragraphs":[{"style": "regularbold", "text": "Header 1:"}]
+                },
+                {
+                    "background": "#506279",
+                    "paragraphs":[{"style": "regularbold", "text": "Header 2:"}]
+                },
+                {
+                    "background": "#506279",
+                    "paragraphs":[{"style": "regularbold", "text": "Header 3:"}]
+                }
+            ]
+        },
+        {
+            "cells": [
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 1:"}]
+                },
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 2:"}]
+                },
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 1 Data 3:"}]
+                }
+            ]
+        },
+        {
+            "cells": [
+                {
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 1:"}]
+                },
+                {
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 2:"}]
+                },
+                {
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 2 Data 3:"}]
+                }
+            ]
+        },
+        {
+            "cells": [
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 1:"}]
+                },
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 2:"}]
+                },
+                {
+                    "background": "#D5DCE4",
+                    "paragraphs":[{"style": "No Spacing", "text": "Row 3 Data 3:"}]
                 }
             ]
         }
-    ]
+    ]                
 }
 
-my_table = build_table(doc_obj, my_dictionary)
+inject_table(doc_obj, my_dictionary, "\[py_placeholder1\]")
+doc_obj.save("output_word_doc.docx")
+```
 
-replace_placeholder_with_table(doc_obj, '\[py_placeholder1\]', my_table)
+Using the provided ```WordTableModel``` class instead of the raw dictionary, the python code would look like this:
+```python
+from docx import Document
+from wordhelpers import WordTableModel, inject_table
 
+doc_obj = Document("source-template.docx")
+
+my_table = WordTableModel()
+my_table.style = "plain"
+my_table.add_row(
+    3,
+    text=[
+        "Header 1:",
+        "Header 2:",
+        "Header 3:",
+    ],
+    background_color="#506279",
+    style="regularbold",
+)
+my_table.add_row(
+    3,
+    text=[
+        "Row 1 Data 1:",
+        "Row 1 Data 2:",
+        "Row 1 Data 3:",
+    ],
+    background_color="#D5DCE4",
+    style="No Spacing",
+)
+my_table.add_row(
+    3,
+    text=[
+        "Row 2 Data 1:",
+        "Row 2 Data 2:",
+        "Row 2 Data 3:",
+    ],
+    style="No Spacing",
+)
+my_table.add_row(
+    3,
+    text=[
+        "Row 3 Data 1:",
+        "Row 3 Data 2:",
+        "Row 3 Data 3:",
+    ],
+    background_color="#D5DCE4",
+    style="No Spacing",
+)
+
+inject_table(doc_obj, my_table.model_dump(), "\[py_placeholder1\]")
 doc_obj.save("output_word_doc.docx")
 ```
 
@@ -196,7 +246,7 @@ The project provides some additional docx functions that may be useful to your p
 - ```insert_paragraph_after(paragraph: Paragraph, text: str = None, style: str = None)```: Searches for a keyword in the docx object and inserts a new paragraph immediately after it with the supplied text
 - ```delete_paragraph(paragraph: Paragraph)```: Deletes a given paragraph (after you've inserted text after it for example)
 
-As well as the following helper functions for the dictionary table models:
+As well as the following helper functions for building raw dictionary table models:
 - ```insert_text_into_row(cell_text: list)```: Builds a row (dictionary) from a list of text where each list item is a column in the row. Supports "merge"
--```insert_text_by_table_coords(table: dict, row: int, col: int, text: str)```: Inserts text into a table dictionary given the row & column numbers.
+- ```insert_text_by_table_coords(table: dict, row: int, col: int, text: str)```: Inserts text into a table dictionary given the row & column numbers.
 - ```generate_table(num_rows: int, num_cols: int, header_row: list, style: str = None)```: Generates a basic table dictionary and populates the headers from a list of text (strings).

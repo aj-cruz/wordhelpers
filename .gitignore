@@ -6,3 +6,4 @@ poetry.lock
 dist
 *.docx
 !word_template.docx
+*.json

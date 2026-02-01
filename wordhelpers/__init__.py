@@ -79,6 +79,37 @@ def replace_placeholder_with_table(
         delete_paragraph(paragraph)
 
 
+def inject_table(
+    doc_obj: _Document,
+    table: dict,
+    placeholder: str,
+    remove_leading_para: bool = True,
+    remove_placeholder: bool = True,
+) -> None:
+    """
+    Function to relocate a Word table object to immediately follow a given
+    reference paragraph identified by the placeholder. Receives as input the
+    placeholder string and the Word table object (using docx module).
+    After moving the Word table after the placeholder paragraph, delete the
+    placeholder paragraph.
+    """
+    # Locate the paragraph from the supplied placeholder text
+    paragraph: Paragraph = get_para_by_string(doc_obj, placeholder)
+
+    # Build the word table and add it to the end of the document
+    table: Table = build_table(doc_obj, table, remove_leading_para=remove_leading_para)
+
+    if not paragraph:
+        print(f'WARNING: Could not locate placeholder "{placeholder}"')
+    else:
+        # Move the Word table to a new paragraph immediately after the placeholder paragraph
+        paragraph._p.addnext(table._tbl)
+
+        if remove_placeholder:
+            # Delete the placeholder paragraph
+            delete_paragraph(paragraph)
+
+
 def build_table(
     docx_obj: _Document | Table, table_dict: dict, remove_leading_para: bool = True
 ) -> Table:
