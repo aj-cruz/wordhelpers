@@ -319,3 +319,56 @@ class WordTableModel(BaseModel):
     def write(self, filepath: str) -> None:
         with open(filepath, "w") as f:
             json.dump(self.model_dump(), f, indent=4)
+
+    def _row_text_at(self, row: WordRowModel, col_index: int) -> str:
+        if col_index >= len(row.cells):
+            return ""
+
+        cell = row.cells[col_index]
+
+        if isinstance(cell, str):  # "merge"
+            return ""
+
+        if not cell.paragraphs:
+            return ""
+
+        paragraph = cell.paragraphs[0]
+        text = paragraph.text
+
+        if isinstance(text, list) and text:
+            return text[0].lower()
+
+        if isinstance(text, str):
+            return text.lower()
+
+        return ""
+
+    def sort_rows_by_columns(
+        self,
+        primary_col: int,
+        secondary_col: int | None = None,
+        *,
+        ascending: bool = True,
+    ) -> None:
+        if len(self.rows) <= 1:
+            return
+
+        header = self.rows[0]
+        body = self.rows[1:]
+
+        def sort_key(row: WordRowModel):
+            primary = self._row_text_at(row, primary_col)
+            secondary = (
+                self._row_text_at(row, secondary_col)
+                if secondary_col is not None
+                else ""
+            )
+            return (primary, secondary)
+
+        body_sorted = sorted(
+            body,
+            key=sort_key,
+            reverse=not ascending,
+        )
+
+        self.rows = [header] + body_sorted

@@ -49,6 +49,7 @@ The WordTablesModel class has a number of methods available to help you build th
 - ```model_dump()```
 - ```pretty_print()```
 - ```write()```
+- ```sort_rows_by_columns(primary_col: int, secondary_col: int | None = None, *, ascending: bool = True,)```
 
 If you prefer to create the tables manually via Python dictionary, the dictionary must follow a strict schema that looks something like this:
 ```python

@@ -1,3 +1,6 @@
+# 0.1.5 (1 February, 2026)
+- Add ```sort_rows_by_columns()``` to ```WordTableModel``` for sorting by up to two columns.
+
 # 0.1.4 (1 February, 2026)
 - ```inject_table()``` now accepts type ```WordTableModel``` in addition to ```dict``` so that we don't have to re-calculate the pydantic model if ```WordTableModel``` is supplied
 

@@ -169,20 +169,33 @@ if __name__ == "__main__":
     # TEST INJECTION OF TABLE VIA OBJECT CREATION
     test_table = WordTableModel()
     test_table.style = "test_tbl_style"
-    test_table.add_row(4, text=[
-        "Obj Row1 Col1",
-        "Obj Row1 Col2",
-        "Obj Row1 Col3",
-        "Obj Row1 Col4",
-        
-    ], background_color="#AF2828",)
-    test_table.add_row(4, text=[
-        "Obj Row2 Col1",
-        "Obj Row2 Col2 merged",
-    ], merge_cols=[2,3])
-    test_table.add_row(4, text=[
-        "Obj Row3 Col1",
-    ], merge_cols=[1,2,3], background_color="#28AFAF", alignment="center")
+    test_table.add_row(
+        4,
+        text=[
+            "Obj Row1 Col1",
+            "Obj Row1 Col2",
+            "Obj Row1 Col3",
+            "Obj Row1 Col4",
+        ],
+        background_color="#AF2828",
+    )
+    test_table.add_row(
+        4,
+        text=[
+            "Obj Row2 Col1",
+            "Obj Row2 Col2 merged",
+        ],
+        merge_cols=[2, 3],
+    )
+    test_table.add_row(
+        4,
+        text=[
+            "Obj Row3 Col1",
+        ],
+        merge_cols=[1, 2, 3],
+        background_color="#28AFAF",
+        alignment="center",
+    )
     inject_table(doc, test_table.model_dump(), "{{heading5_table}}")
     test_table.pretty_print()
 

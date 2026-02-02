@@ -97,17 +97,15 @@ def inject_table(
     # Locate the paragraph from the supplied placeholder text
     paragraph: Paragraph = get_para_by_string(doc_obj, placeholder)
     if not paragraph:
-        raise ValueError(
-            f'WARNING: Could not locate placeholder "{placeholder}"'
-        )
+        raise ValueError(f'WARNING: Could not locate placeholder "{placeholder}"')
 
     # Build the word table and add it to the end of the document
     table = (
-        build_table(
-            doc_obj, table, remove_leading_para=remove_leading_para
-        )
+        build_table(doc_obj, table, remove_leading_para=remove_leading_para)
         if isinstance(table, dict)
-        else build_table(doc_obj, table.model_dump(), remove_leading_para=remove_leading_para)
+        else build_table(
+            doc_obj, table.model_dump(), remove_leading_para=remove_leading_para
+        )
     )
 
     # Move the Word table to a new paragraph immediately after the placeholder paragraph
