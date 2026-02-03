@@ -1,3 +1,6 @@
+# 0.1.6 (2 February, 2026)
+- Fix: add_row() no longer adds all text as a list (breaking adding of lists of string for multi-line text)
+
 # 0.1.5 (1 February, 2026)
 - Add ```sort_rows_by_columns()``` to ```WordTableModel``` for sorting by up to two columns.
 

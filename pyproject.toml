@@ -1,6 +1,6 @@
 [project]
 name = "wordhelpers"
-version = "0.1.5"
+version = "0.1.6"
 description = "Helpers for working with python-docx"
 authors = [
     {name = "AJ Cruz",email = "15045766-a-cruz@users.noreply.gitlab.com"}

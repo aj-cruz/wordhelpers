@@ -107,7 +107,7 @@ class WordTableModel(BaseModel):
                 if text:
                     paragraphs = [
                         WordParagraphModel(
-                            style=style, alignment=alignment, text=[text.pop(0)]
+                            style=style, alignment=alignment, text=text.pop(0)
                         )
                     ]
                 cells.append(
